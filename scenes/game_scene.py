@@ -1,26 +1,24 @@
 import pico2d
 from scenes.scene import Scene
 from scenes.back_scene import Back_Scene
+from tiled_map import TiledMap
 
 class Game_Scene(Scene):
     def __init__(self):
         self.back_scene = Back_Scene()
         self.back_scene.start_music()
-        self.map = None
+        self.map = TiledMap('Tiled/Stage1.json')
         self.setup()
 
     def setup(self):
-
         pass
 
     def update(self):
-
         pass
 
     def draw(self):
         pico2d.clear_canvas()
-        if self.map:
-            self.map.draw()
+        self.map.draw()
         pico2d.update_canvas()
 
     def handle_events(self, events):
