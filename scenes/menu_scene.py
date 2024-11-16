@@ -2,7 +2,7 @@ import pico2d
 from scenes.scene import Scene
 
 
-class BG_Scene(Scene):
+class Menu_Scene(Scene):
     def __init__(self):
         self.background = pico2d.load_image('resource/background.png')
         self.start_button = pico2d.load_image('resource/start_button.png')
@@ -24,7 +24,7 @@ class BG_Scene(Scene):
             elif event.type == pico2d.SDL_MOUSEBUTTONDOWN:
                 x, y = event.x, 1024 - event.y
                 if self.is_button_clicked(self.start_button_pos, x, y):
-                    return 'FT_Scene'
+                    return 'Game_Scene'
                 elif self.is_button_clicked(self.exit_button_pos, x, y):
                     return 'exit'
 

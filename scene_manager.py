@@ -1,19 +1,22 @@
 import pico2d
 
-from scenes.bg_scene import BG_Scene
-from scenes.ft_scene import FT_Scene
+from scenes.menu_scene import Menu_Scene
+from scenes.back_scene import Back_Scene
+from scenes.game_scene import Game_Scene
 
 class SceneManager:
     def __init__(self):
-        self.current_scene = BG_Scene()
+        self.current_scene = Menu_Scene()
         self.current_scene.enter()
 
     def change_scene(self, scene_name):
         self.current_scene.exit()
-        if scene_name == 'BG_Scene':
-            self.current_scene = BG_Scene()
-        elif scene_name == 'FT_Scene':
-            self.current_scene = FT_Scene()
+        if scene_name == 'Menu_Scene':
+            self.current_scene = Menu_Scene()
+        elif scene_name == 'Back_Scene':
+            self.current_scene = Back_Scene()
+        elif scene_name == 'Game_Scene':
+            self.current_scene = Game_Scene()
         elif scene_name == 'exit':
             pico2d.close_canvas()
             exit()
