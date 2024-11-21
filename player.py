@@ -1,4 +1,5 @@
 import pico2d
+import pygame
 
 class Player:
     def __init__(self):
@@ -26,7 +27,11 @@ class Player:
         self.vertical_velocity = 0
         self.jump_power = 5
         self.is_jumping = False
-        self.is_on_platform = False
+        self.is_on_platform = True
+        self.jump_count = 0
+
+        self.jump1_sound = pygame.mixer.Sound('resource/player_jump1.wav')
+        self.jump2_sound = pygame.mixer.Sound('resource/player_jump2.wav')
 
         self.frame_index = 0
         self.frame_count = 0
@@ -48,6 +53,12 @@ class Player:
             self.vertical_velocity += self.gravity
         self.y += self.vertical_velocity
 
+        # 플랫폼 도달 시 초기화
+        if self.is_on_platform and self.vertical_velocity <= 0:
+            self.is_jumping = False
+            self.jump_count = 0
+            self.vertical_velocity = 0
+
         if self.key_state[pico2d.SDLK_LEFT]:
             self.x -= self.speed
             self.state = 'walk'
@@ -67,11 +78,21 @@ class Player:
     def handle_events(self, events):
         for event in events:
             if event.type == pico2d.SDL_KEYDOWN:
-                if event.key == pico2d.SDLK_UP and not self.is_jumping:
-                    self.vertical_velocity = self.jump_power
-                    self.is_jumping = True
+                if event.key == pico2d.SDLK_UP:
+                    if self.jump_count < 2:
+                        if self.jump_count == 0:
+                            self.vertical_velocity = self.jump_power
+                            self.jump1_sound.play()
+                        elif self.jump_count == 1:
+                            self.vertical_velocity = self.jump_power * 0.7
+                            self.jump2_sound.play()
+
+                        self.is_jumping = True
+                        self.is_on_platform = False
+                        self.jump_count += 1
                 elif event.key in self.key_state:
                     self.key_state[event.key] = True
+
             elif event.type == pico2d.SDL_KEYUP:
                 if event.key in self.key_state:
                     self.key_state[event.key] = False
