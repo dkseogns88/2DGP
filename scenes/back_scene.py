@@ -11,7 +11,17 @@ class Back_Scene:
         self.background_music.play(loops=-1)
 
     def stop_music(self):
-        self.background_music.stop()
+        if pygame.mixer.get_init():
+            if self.background_music:
+                self.background_music.stop()
+            pygame.mixer.stop()
+            pygame.mixer.quit()
+
+
 
     def play_effect(self):
         self.effect_sound.play()
+
+    def __del__(self):
+        self.stop_music()
+        pygame.mixer.quit()

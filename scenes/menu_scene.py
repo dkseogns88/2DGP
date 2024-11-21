@@ -4,7 +4,7 @@ from scenes.scene import Scene
 
 class Menu_Scene(Scene):
     def __init__(self):
-        self.background = pico2d.load_image('resource/background.png')
+        self.background = pico2d.load_image('resource/menu_background.png')
         self.start_button = pico2d.load_image('resource/start_button.png')
         self.exit_button = pico2d.load_image('resource/exit_button.png')
         self.start_button_pos = (512, 300)
