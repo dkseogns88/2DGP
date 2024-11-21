@@ -5,20 +5,38 @@ from bullet import Bullet
 
 class Player:
     def __init__(self):
-        self.idle_images = [
-            pico2d.load_image('resource/playercharacter/Idle1.png'),
-            pico2d.load_image('resource/playercharacter/Idle2.png')
+
+        self.left_idle_images = [
+            pico2d.load_image('resource/playercharacter/left_idle1.png'),
+            pico2d.load_image('resource/playercharacter/left_idle2.png')
         ]
 
-        self.walk_images = [
-            pico2d.load_image('resource/playercharacter/Walk1.png'),
-            pico2d.load_image('resource/playercharacter/Walk2.png'),
-            pico2d.load_image('resource/playercharacter/Walk3.png'),
-            pico2d.load_image('resource/playercharacter/Walk4.png'),
-            pico2d.load_image('resource/playercharacter/Walk5.png'),
-            pico2d.load_image('resource/playercharacter/Walk6.png'),
-            pico2d.load_image('resource/playercharacter/Walk7.png'),
-            pico2d.load_image('resource/playercharacter/Walk8.png')
+        self.left_walk_images = [
+            pico2d.load_image('resource/playercharacter/left_walk1.png'),
+            pico2d.load_image('resource/playercharacter/left_walk2.png'),
+            pico2d.load_image('resource/playercharacter/left_walk3.png'),
+            pico2d.load_image('resource/playercharacter/left_walk4.png'),
+            pico2d.load_image('resource/playercharacter/left_walk5.png'),
+            pico2d.load_image('resource/playercharacter/left_walk6.png'),
+            pico2d.load_image('resource/playercharacter/left_walk7.png'),
+            pico2d.load_image('resource/playercharacter/left_walk8.png')
+        ]
+
+
+        self.right_idle_images = [
+            pico2d.load_image('resource/playercharacter/right_idle1.png'),
+            pico2d.load_image('resource/playercharacter/right_idle2.png')
+        ]
+
+        self.right_walk_images = [
+            pico2d.load_image('resource/playercharacter/right_walk1.png'),
+            pico2d.load_image('resource/playercharacter/right_walk2.png'),
+            pico2d.load_image('resource/playercharacter/right_walk3.png'),
+            pico2d.load_image('resource/playercharacter/right_walk4.png'),
+            pico2d.load_image('resource/playercharacter/right_walk5.png'),
+            pico2d.load_image('resource/playercharacter/right_walk6.png'),
+            pico2d.load_image('resource/playercharacter/right_walk7.png'),
+            pico2d.load_image('resource/playercharacter/right_walk8.png')
         ]
         self.bullets = []
         self.screen_width = 1024
@@ -80,9 +98,9 @@ class Player:
         self.frame_count = (self.frame_count + 1) % self.frame_speed
         if self.frame_count == 0:
             if self.state == 'idle':
-                self.frame_index = (self.frame_index + 1) % len(self.idle_images)
+                self.frame_index = (self.frame_index + 1) % len(self.right_idle_images)
             elif self.state == 'walk':
-                self.frame_index = (self.frame_index + 1) % len(self.walk_images)
+                self.frame_index = (self.frame_index + 1) % len(self.right_walk_images)
 
         for bullet in self.bullets:
             bullet.update()
@@ -128,11 +146,17 @@ class Player:
             bullet.draw()
 
         try:
-            if self.state == 'idle':
-                self.idle_images[self.frame_index].draw(self.x, self.y, draw_width, draw_height)
-            elif self.state == 'walk':
-                self.walk_images[self.frame_index].draw(self.x, self.y, draw_width, draw_height)
-        except IndexError as e:
+            if self.last_direction == 1:
+                if self.state == 'idle':
+                    self.right_idle_images[self.frame_index].draw(self.x, self.y, draw_width, draw_height)
+                elif self.state == 'walk':
+                    self.right_walk_images[self.frame_index].draw(self.x, self.y, draw_width, draw_height)
+            else:
+                if self.state == 'idle':
+                    self.left_idle_images[self.frame_index].draw(self.x, self.y, draw_width, draw_height)
+                elif self.state == 'walk':
+                    self.left_walk_images[self.frame_index].draw(self.x, self.y, draw_width, draw_height)
+        except IndexError:
             self.frame_index = 0
 
 
