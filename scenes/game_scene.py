@@ -17,7 +17,7 @@ class Game_Scene(Scene):
 
     def update(self):
         self.player.update()
-
+        self.map.check_collision_with_player(self.player)
 
     def draw(self):
         pico2d.clear_canvas()

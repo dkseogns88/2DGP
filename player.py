@@ -19,39 +19,43 @@ class Player:
         ]
 
         self.x = 10
-        self.y = 65
+        self.y = 500
         self.speed = 2
+
+        self.gravity = -0.1
+        self.vertical_velocity = 0
+        self.jump_power = 5
+        self.is_jumping = False
+        self.is_on_platform = False
 
         self.frame_index = 0
         self.frame_count = 0
         self.frame_speed = 20
 
-
         self.state = 'idle'
         self.key_state = {
             pico2d.SDLK_LEFT: False,
             pico2d.SDLK_RIGHT: False,
-            pico2d.SDLK_UP: False,
-            pico2d.SDLK_DOWN: False
         }
         self.scale = 2.0
 
+
+        self.width = int(20 * self.scale)
+        self.height = int(20 * self.scale)
+
     def update(self):
+        if not self.is_on_platform:
+            self.vertical_velocity += self.gravity
+        self.y += self.vertical_velocity
+
         if self.key_state[pico2d.SDLK_LEFT]:
             self.x -= self.speed
             self.state = 'walk'
         elif self.key_state[pico2d.SDLK_RIGHT]:
             self.x += self.speed
             self.state = 'walk'
-        elif self.key_state[pico2d.SDLK_UP]:
-            self.y += self.speed
-            self.state = 'walk'
-        elif self.key_state[pico2d.SDLK_DOWN]:
-            self.y -= self.speed
-            self.state = 'walk'
         else:
             self.state = 'idle'
-
 
         self.frame_count = (self.frame_count + 1) % self.frame_speed
         if self.frame_count == 0:
@@ -63,15 +67,26 @@ class Player:
     def handle_events(self, events):
         for event in events:
             if event.type == pico2d.SDL_KEYDOWN:
-                if event.key in self.key_state:
+                if event.key == pico2d.SDLK_UP and not self.is_jumping:
+                    self.vertical_velocity = self.jump_power
+                    self.is_jumping = True
+                elif event.key in self.key_state:
                     self.key_state[event.key] = True
             elif event.type == pico2d.SDL_KEYUP:
                 if event.key in self.key_state:
                     self.key_state[event.key] = False
 
+    def get_collision_box(self):
+        left = self.x - self.width // 2
+        bottom = self.y - self.height // 2
+        right = self.x + self.width // 2
+        top = self.y + self.height // 2
+        return left, bottom, right, top
+
+
     def draw(self):
-        draw_width = int(32 * self.scale)
-        draw_height = int(32 * self.scale)
+        draw_width = int(20 * self.scale)
+        draw_height = int(20 * self.scale)
 
         try:
             if self.state == 'idle':
@@ -79,4 +94,10 @@ class Player:
             elif self.state == 'walk':
                 self.walk_images[self.frame_index].draw(self.x, self.y, draw_width, draw_height)
         except IndexError as e:
-           self.frame_index = 0
+            self.frame_index = 0
+
+
+
+        left, bottom, right, top = self.get_collision_box()
+        pico2d.draw_rectangle(left, bottom, right, top)
+
