@@ -1,5 +1,7 @@
 import pico2d
 import pygame
+from bullet import Bullet
+
 
 class Player:
     def __init__(self):
@@ -18,7 +20,9 @@ class Player:
             pico2d.load_image('resource/playercharacter/Walk7.png'),
             pico2d.load_image('resource/playercharacter/Walk8.png')
         ]
-
+        self.bullets = []
+        self.screen_width = 1024
+        self.screen_height = 1024
         self.x = 10
         self.y = 500
         self.speed = 2
@@ -32,6 +36,7 @@ class Player:
 
         self.jump1_sound = pygame.mixer.Sound('resource/player_jump1.wav')
         self.jump2_sound = pygame.mixer.Sound('resource/player_jump2.wav')
+        self.fire_sound = pygame.mixer.Sound('resource/player_fire.wav')
 
         self.frame_index = 0
         self.frame_count = 0
@@ -44,7 +49,7 @@ class Player:
         }
         self.scale = 2.0
 
-
+        self.last_direction = 1
         self.width = int(20 * self.scale)
         self.height = int(20 * self.scale)
 
@@ -53,7 +58,6 @@ class Player:
             self.vertical_velocity += self.gravity
         self.y += self.vertical_velocity
 
-        # 플랫폼 도달 시 초기화
         if self.is_on_platform and self.vertical_velocity <= 0:
             self.is_jumping = False
             self.jump_count = 0
@@ -62,11 +66,16 @@ class Player:
         if self.key_state[pico2d.SDLK_LEFT]:
             self.x -= self.speed
             self.state = 'walk'
+            self.last_direction = -1
         elif self.key_state[pico2d.SDLK_RIGHT]:
             self.x += self.speed
             self.state = 'walk'
+            self.last_direction = 1
         else:
             self.state = 'idle'
+
+        self.x = max(self.width // 2, min(self.x, self.screen_width - self.width // 2))
+        self.y = max(self.height // 2, min(self.y, self.screen_height - self.height // 2))
 
         self.frame_count = (self.frame_count + 1) % self.frame_speed
         if self.frame_count == 0:
@@ -75,9 +84,16 @@ class Player:
             elif self.state == 'walk':
                 self.frame_index = (self.frame_index + 1) % len(self.walk_images)
 
+        for bullet in self.bullets:
+            bullet.update()
+        self.bullets = [bullet for bullet in self.bullets if bullet.active]
+
     def handle_events(self, events):
         for event in events:
             if event.type == pico2d.SDL_KEYDOWN:
+                if event.key == pico2d.SDLK_SPACE:
+                    self.bullets.append(Bullet(self.x, self.y, self.last_direction))
+                    self.fire_sound.play()
                 if event.key == pico2d.SDLK_UP:
                     if self.jump_count < 2:
                         if self.jump_count == 0:
@@ -108,6 +124,8 @@ class Player:
     def draw(self):
         draw_width = int(20 * self.scale)
         draw_height = int(20 * self.scale)
+        for bullet in self.bullets:
+            bullet.draw()
 
         try:
             if self.state == 'idle':

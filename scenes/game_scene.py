@@ -39,14 +39,38 @@ class Game_Scene(Scene):
         self.enemies.clear()
         self.map = None
 
+    def check_collision(self, obj1, obj2):
+        left1, bottom1, right1, top1 = obj1.get_collision_box()
+        left2, bottom2, right2, top2 = obj2.get_collision_box()
+
+        return not (right1 < left2 or left1 > right2 or top1 < bottom2 or bottom1 > top2)
 
     def update(self):
         self.player.update()
         self.map.check_collision_with_player(self.player)
 
+        # 플레이어와 적 충돌 체크
         for enemy in self.enemies:
+            if self.check_collision(self.player, enemy):
+                print("[Game_Scene] Player collided with Enemy. Triggering GameOver.")
+                self.game_over = True
+                return 'GameOver_Scene'
+
+            # 적 행동 업데이트
             enemy.behavior_tree.update()
             enemy.update(self.map.platforms)
+
+        # 플레이어 총알과 적 충돌 체크
+        for bullet in self.player.bullets:
+            for enemy in self.enemies:
+                if self.check_collision(bullet, enemy):
+                    print("[Game_Scene] Bullet hit Enemy!")
+                    bullet.active = False
+                    self.enemies.remove(enemy)
+                    break
+
+        # 비활성화된 적 제거
+        self.enemies = [enemy for enemy in self.enemies if enemy]
 
     def draw(self):
         pico2d.clear_canvas()
@@ -59,6 +83,9 @@ class Game_Scene(Scene):
         pico2d.update_canvas()
 
     def handle_events(self, events):
+        if self.game_over:
+            return 'GameOver_Scene'
+
         for event in events:
             if event.type == pico2d.SDL_QUIT:
                 self.back_scene.stop_music()
@@ -67,8 +94,6 @@ class Game_Scene(Scene):
                 if event.key == pico2d.SDLK_ESCAPE:
                     self.back_scene.stop_music()
                     return 'Menu_Scene'
-                elif event.key == pico2d.SDLK_SPACE:
-                    self.back_scene.play_effect()
                 elif event.key == pico2d.SDLK_y:
                     print("[Debug] GameOver triggered")
                     self.back_scene.stop_music()

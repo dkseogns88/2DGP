@@ -13,7 +13,7 @@ class Enemy:
         self.is_on_platform = False
         self.collision_box_color = (255, 0, 0)
         self.speed = 1
-        self.direction = 1  # 1: 오른쪽, -1: 왼쪽
+        self.direction = 1
         self.frame_count = 0
         self.frame_index = 0
         self.frame_speed = 20
