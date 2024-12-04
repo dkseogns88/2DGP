@@ -6,6 +6,8 @@ from tiled_map import TiledMap
 from player import Player
 from enemy import Enemy
 from behavior_tree import BehaviorTree
+from save import Save
+from load import Load
 
 
 class Game_Scene(Scene):
@@ -15,6 +17,8 @@ class Game_Scene(Scene):
         self.map = TiledMap('Tiled/Stage1.json')
         self.player = Player()
         self.enemies = []
+        self.save_instance = Save(self.player, self.enemies)
+        self.load_instance = Load(self.player, self.enemies)
         self.game_over = False
         self.setup()
 
@@ -46,9 +50,11 @@ class Game_Scene(Scene):
         return not (right1 < left2 or left1 > right2 or top1 < bottom2 or bottom1 > top2)
 
     def update(self):
-        self.player.update()
+        self.player.update(self.map)
+        self.player.handle_events(pico2d.get_events(),
+                                  save_instance=self.save_instance,
+                                  load_instance=self.load_instance)
         self.map.check_collision_with_player(self.player)
-
         # 플레이어와 적 충돌 체크
         for enemy in self.enemies:
             if self.check_collision(self.player, enemy):

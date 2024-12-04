@@ -53,21 +53,19 @@ class Enemy:
         pico2d.draw_rectangle(left, bottom, right, top)
 
     def check_collision_with_platforms(self, platforms):
-
-        self.is_on_platform = False
+        self.is_on_platform = False  # 초기화
         left, bottom, right, top = self.get_collision_box()
 
         for platform in platforms:
             platform_left, platform_bottom, platform_right, platform_top = platform
-            if self.vertical_velocity > 0 and bottom < platform_top:
-                continue
-            if bottom <= platform_top and top > platform_top and \
+
+            # 아래쪽에서만 충돌 감지
+            if bottom <= platform_top <= top and \
                     left < platform_right and right > platform_left:
                 self.y = platform_top + self.height // 2
                 self.vertical_velocity = 0
                 self.is_on_platform = True
-                break
-
+                return
     def get_collision_box(self):
         left = self.x - self.width // 2
         bottom = self.y - self.height // 2

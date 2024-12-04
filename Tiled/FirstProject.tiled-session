@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "Stage1.json",
+    "activeFile": "Stage1.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -16,16 +16,16 @@
             "scale": 1.1689453125,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 512.4277360066834,
-                "y": 670.2623224728487
+                "x": 542.796992481203,
+                "y": 511.99999999999994
             }
         },
         "Stage1.tmx": {
             "scale": 1.1689453125,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 511.5722639933166,
-                "y": 670.690058479532
+                "x": 930.7535505430241,
+                "y": 870.015037593985
             }
         }
     },
@@ -37,7 +37,8 @@
     "map.width": 32,
     "openFiles": [
         "CastleTile.tsx",
-        "Stage1.json"
+        "Stage1.json",
+        "Stage1.tmx"
     ],
     "project": "FirstProject.tiled-project",
     "recentFiles": [

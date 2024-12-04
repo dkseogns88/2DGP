@@ -43,19 +43,52 @@ class TiledMap:
         return platforms
 
     def check_collision_with_player(self, player):
+        # 플레이어의 충돌 박스 가져오기
         player_left, player_bottom, player_right, player_top = player.get_collision_box()
-        player.is_on_platform = False
+        player.is_on_platform = False  # 플랫폼 위 상태 초기화
+
         for platform in self.platforms:
             platform_left, platform_bottom, platform_right, platform_top = platform
-            if player.vertical_velocity > 0 and player_bottom < platform_top:
-                continue
-            if player_bottom <= platform_top and player_top > platform_top and \
-                    player_left < platform_right and player_right > platform_left:
+
+            # 플랫폼 상단 충돌 처리 (발판 역할)
+            if (
+                    player_bottom <= platform_top <= player_top  # 플레이어 발이 플랫폼 높이에 접근
+                    and player.vertical_velocity <= 0  # 아래로 떨어지는 중
+                    and player_right > platform_left
+                    and player_left < platform_right
+            ):
+                # 플레이어를 플랫폼 위에 위치
                 player.y = platform_top + player.height // 2
                 player.vertical_velocity = 0
                 player.is_jumping = False
                 player.is_on_platform = True
-                break
+                continue
+
+            # 플랫폼 하단 충돌 처리 (머리 충돌)
+            if (
+                    platform_bottom <= player_top <= platform_top  # 플레이어 머리가 플랫폼 하단에 접근
+                    and player.vertical_velocity > 0  # 위로 점프 중
+                    and player_right > platform_left
+                    and player_left < platform_right
+            ):
+
+                player.y = platform_bottom - player.height // 2
+                player.vertical_velocity = 0
+                return
+
+            # X축 충돌 처리
+            if (
+                    player_top > platform_bottom
+                    and player_bottom < platform_top
+            ):
+                # 왼쪽 벽 충돌
+                if player_right > platform_left > player_left:
+                    player.x = platform_left - player.width // 2
+
+                # 오른쪽 벽 충돌
+                elif player_left < platform_right < player_right:
+                    player.x = platform_right + player.width // 2
+
 
     def draw(self):
         for layer in self.data['layers']:
