@@ -13,19 +13,72 @@ class TiledMap:
         self.tile_height = self.data['tileheight']
         self.map_width = self.data['width']
         self.map_height = self.data['height']
-        tileset = self.data['tilesets'][0]
-        self.first_gid = tileset['firstgid']
-        tileset_source = os.path.join('Tiled', tileset['source'])
-        self.tileset_image = pico2d.load_image(self._parse_tileset(tileset_source))
-        self.tileset_columns = self.tileset_image.w // self.tile_width
+
+        # 여러 타일셋 로드
+        self.tilesets = self._load_tilesets()
         self.platforms = self._get_platform_tiles()
 
+    def _load_tilesets(self):
+        tilesets = []
+        for tileset in self.data['tilesets']:
+            first_gid = tileset['firstgid']
+            tileset_source = os.path.join('Tiled', tileset['source'])
+            tileset_info = self._parse_tileset(tileset_source)
+
+            tileset_image = pico2d.load_image(tileset_info['image'])
+            columns = (tileset_image.w - tileset_info['margin'] * 2) // (self.tile_width + tileset_info['spacing'])
+
+            tilesets.append({
+                "first_gid": first_gid,
+                "image": tileset_image,
+                "columns": columns,
+                "margin": tileset_info['margin'],
+                "spacing": tileset_info['spacing']
+            })
+        return tilesets
+
+    def check_bullet_collision_with_save_tile(self, bullet):
+        for layer in self.data['layers']:
+            if layer['type'] == 'tilelayer':
+                for y in range(self.map_height):
+                    for x in range(self.map_width):
+                        gid = layer['data'][y * self.map_width + x]
+
+                        # GID가 49 이상인지 확인
+                        if gid >= 49:
+                            # 타일셋 범위 계산
+                            tile_id = gid - 49  # 49이 `firstgid`인 타일셋의 타일 ID
+
+                            # 충돌 박스 계산
+                            tile_left = x * self.tile_width
+                            tile_bottom = (self.map_height - y - 1) * self.tile_height
+                            tile_right = tile_left + self.tile_width
+                            tile_top = tile_bottom + self.tile_height
+                            bullet_left, bullet_bottom, bullet_right, bullet_top = bullet.get_collision_box()
+
+                            # 충돌 여부 확인
+                            if (
+                                    bullet_right > tile_left and
+                                    bullet_left < tile_right and
+                                    bullet_top > tile_bottom and
+                                    bullet_bottom < tile_top
+                            ):
+                                print("Collision detected with Save tile.")
+                                return True  # 충돌 발생
+        return False
 
     def _parse_tileset(self, tileset_source):
         tree = ET.parse(tileset_source)
         root = tree.getroot()
         image_element = root.find('image')
-        return os.path.join('Tiled', image_element.get('source'))
+        margin = int(root.get('margin', 0))  # 기본값 0
+        spacing = int(root.get('spacing', 0))  # 기본값 0
+
+        return {
+            "image": os.path.join('Tiled', image_element.get('source')),
+            "margin": margin,
+            "spacing": spacing
+        }
 
     def _get_platform_tiles(self):
         platforms = []
@@ -41,6 +94,13 @@ class TiledMap:
                             top = bottom + self.tile_height
                             platforms.append((left, bottom, right, top))
         return platforms
+
+    def _get_tileset_for_gid(self, gid):
+        # GID에 해당하는 타일셋 반환
+        for tileset in reversed(self.tilesets):
+            if gid >= tileset['first_gid']:
+                return tileset
+        return None
 
     def check_collision_with_player(self, player):
         # 플레이어의 충돌 박스 가져오기
@@ -89,28 +149,31 @@ class TiledMap:
                 elif player_left < platform_right < player_right:
                     player.x = platform_right + player.width // 2
 
-
     def draw(self):
         for layer in self.data['layers']:
             if layer['type'] == 'tilelayer':
                 for y in range(self.map_height):
                     for x in range(self.map_width):
-                        tile_index = layer['data'][y * self.map_width + x] - self.first_gid
-                        if tile_index < 0:
+                        gid = layer['data'][y * self.map_width + x]
+                        if gid == 0:
                             continue
 
-                        tile_x = (tile_index % self.tileset_columns) * self.tile_width
-                        tile_y = (tile_index // self.tileset_columns) * self.tile_height
-                        self.tileset_image.clip_draw(
-                            tile_x, self.tileset_image.h - tile_y - self.tile_height,
+                        tileset = self._get_tileset_for_gid(gid)
+                        if not tileset:
+                            continue
+
+                        tile_id = gid - tileset['first_gid']
+                        margin = tileset['margin']
+                        spacing = tileset['spacing']
+                        columns = tileset['columns']
+
+                        tile_x = margin + (tile_id % columns) * (self.tile_width + spacing)
+                        tile_y = margin + (tile_id // columns) * (self.tile_height + spacing)
+
+                        tileset["image"].clip_draw(
+                            tile_x, tileset["image"].h - tile_y - self.tile_height,
                             self.tile_width, self.tile_height,
                             x * self.tile_width + self.tile_width // 2,
                             (self.map_height - y - 1) * self.tile_height + self.tile_height // 2
                         )
-                        if layer['data'][y * self.map_width + x] == 2:
-                            left = x * self.tile_width
-                            bottom = (self.map_height - y - 1) * self.tile_height
-                            right = left + self.tile_width
-                            top = bottom + self.tile_height
-                            pico2d.draw_rectangle(left, bottom, right, top)
 

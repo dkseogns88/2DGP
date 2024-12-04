@@ -55,6 +55,14 @@ class Game_Scene(Scene):
                                   save_instance=self.save_instance,
                                   load_instance=self.load_instance)
         self.map.check_collision_with_player(self.player)
+
+        # 플레이어의 총알과 Save 타일 충돌 체크
+        for bullet in self.player.bullets:
+            if self.map.check_bullet_collision_with_save_tile(bullet):
+                print("[Game_Scene] Bullet hit Save tile. Saving game state.")
+                self.save_instance.save_state()
+                bullet.active = False  # 충돌한 총알 비활성화
+
         # 플레이어와 적 충돌 체크
         for enemy in self.enemies:
             if self.check_collision(self.player, enemy):

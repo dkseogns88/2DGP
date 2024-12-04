@@ -91,7 +91,7 @@ class Player:
         else:
             self.state = 'idle'
 
-        # 점프 상태 초기화 (플랫폼 여부와 무관하게 초기화)
+        # 점프 상태 초기화
         if self.is_on_platform:
             self.is_jumping = False
             self.jump_count = 0

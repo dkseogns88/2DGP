@@ -1,1 +1,1 @@
-{"player": {"x": 446, "y": 383.0000000000002, "vertical_velocity": -1.6000000000000034, "is_jumping": true}, "enemies": [{"x": 788, "y": 48, "vertical_velocity": 0}]}
+{"player": {"x": 136, "y": 436, "vertical_velocity": 0, "is_jumping": false}, "enemies": [{"x": 510, "y": 48, "vertical_velocity": 0}]}

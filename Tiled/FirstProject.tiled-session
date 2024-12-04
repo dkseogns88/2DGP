@@ -3,12 +3,21 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "Stage1.tmx",
+    "activeFile": "Stage1.json",
     "expandedProjectPaths": [
         "."
     ],
     "fileStates": {
         "CastleTile.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "PC Computer - I Wanna Be the Boshy - Saves2.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 5.5
+        },
+        "Save.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
@@ -16,17 +25,39 @@
             "scale": 1.1689453125,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 542.796992481203,
-                "y": 511.99999999999994
+                "x": 190.77025898078534,
+                "y": 770.780284043442
             }
         },
         "Stage1.tmx": {
             "scale": 1.1689453125,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 930.7535505430241,
-                "y": 870.015037593985
+                "x": 2231.0710108604844,
+                "y": 1111.2581453634084
             }
+        },
+        "save.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 5.5
+        },
+        "save1.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "save1a.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "save2.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "save2a.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
         }
     },
     "last.exportedFilePath": "C:/2DGP/Tiled",
@@ -38,13 +69,27 @@
     "openFiles": [
         "CastleTile.tsx",
         "Stage1.json",
-        "Stage1.tmx"
+        "Stage1.tmx",
+        "PC Computer - I Wanna Be the Boshy - Saves2.tsx"
     ],
     "project": "FirstProject.tiled-project",
     "recentFiles": [
         "CastleTile.tsx",
+        "PC Computer - I Wanna Be the Boshy - Saves2.tsx",
+        "Stage1.tmx",
         "Stage1.json",
-        "Stage1.tmx"
+        "save.tsx",
+        "save2a.tsx",
+        "save1a.tsx",
+        "save1.tsx",
+        "save2.tsx",
+        "Save.tsx"
     ],
-    "tileset.lastUsedFormat": "tsx"
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.margin": 6,
+    "tileset.tileSize": {
+        "height": 32,
+        "width": 32
+    },
+    "tileset.type": 0
 }
