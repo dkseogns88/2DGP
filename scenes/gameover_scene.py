@@ -1,14 +1,14 @@
 import pico2d
 import pygame
-
+import os
 
 class GameOverScene:
-    def __init__(self, game_scene):
-        self.game_scene = game_scene
-
+    def __init__(self):
         if not pygame.mixer.get_init():
-            pygame.mixer.init()
-
+            try:
+                pygame.mixer.init()
+            except Exception as e:
+                print(f"[GameOverScene] Error initializing pygame mixer: {e}")
 
         self.bg_image = pico2d.load_image('resource/bloodbackground.jpg')
         self.image = pico2d.load_image('resource/gameoverimg.png')
@@ -26,8 +26,7 @@ class GameOverScene:
 
     def draw(self):
         pico2d.clear_canvas()
-        if self.game_scene:
-            self.game_scene.draw()
+
 
         self.bg_image.draw(512, 512,1024,1024)
         self.image.draw(512, 600)
@@ -40,13 +39,23 @@ class GameOverScene:
 
             elif event.type == pico2d.SDL_KEYDOWN:
                 if event.key == pico2d.SDLK_r:
-                    return 'Game_Scene'
+                    print("[GameOverScene] Restarting from last save.")
+                    save_file = "save_state.json"
+                    if os.path.exists(save_file):
+                        print("[GameOverScene] Save file found. Requesting load to SceneManager.")
+                        return 'Load_Saved_Game'
+                    else:
+                        print("[GameOverScene] No save file found. Restart aborted.")
+                        return 'Menu_Scene'
 
     def update(self):
         pass
 
     def __del__(self):
-        self.gameover_music.stop()
-        pygame.mixer.quit()
-
+        try:
+            if pygame.mixer.get_init():
+                self.gameover_music.stop()
+                pygame.mixer.quit()
+        except Exception as e:
+            print(f"[GameOverScene] Error in __del__: {e}")
 

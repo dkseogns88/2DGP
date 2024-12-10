@@ -1,5 +1,5 @@
 import json
-
+import os
 class Save:
     def __init__(self, player, enemies):
         self.player = player
@@ -32,5 +32,13 @@ class Save:
             json.dump(self.save_data, file)
         print("Game state saved.")
 
-    def get_saved_data(self):
+    def get_saved_data(self, save_file="save_state.json"):
+        # 파일에서 저장된 데이터 읽기
+        if not os.path.exists(save_file):
+            print(f"No save file found at {save_file}.")
+            return None
+
+        with open(save_file, "r") as file:
+            self.save_data = json.load(file)
+        print(f"Loaded save data from {save_file}.")
         return self.save_data
