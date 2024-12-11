@@ -14,7 +14,6 @@ class TiledMap:
         self.map_width = self.data['width']
         self.map_height = self.data['height']
 
-        # 여러 타일셋 로드
         self.tilesets = self._load_tilesets()
         self.platforms = self._get_platform_tiles()
 
@@ -44,19 +43,24 @@ class TiledMap:
                     for x in range(self.map_width):
                         gid = layer['data'][y * self.map_width + x]
 
-                        # GID가 49 이상인지 확인
-                        if gid >= 49:
-                            # 타일셋 범위 계산
-                            tile_id = gid - 49  # 49이 `firstgid`인 타일셋의 타일 ID
+                        if gid == 0:
+                            continue
 
-                            # 충돌 박스 계산
+                        tileset = self._get_tileset_for_gid(gid)
+                        if not tileset:
+                            continue
+
+                        tile_id = gid - tileset['first_gid']
+
+                        #세이브 타일구분
+                        if tileset['first_gid'] == 49:
                             tile_left = x * self.tile_width
                             tile_bottom = (self.map_height - y - 1) * self.tile_height
                             tile_right = tile_left + self.tile_width
                             tile_top = tile_bottom + self.tile_height
                             bullet_left, bullet_bottom, bullet_right, bullet_top = bullet.get_collision_box()
 
-                            # 충돌 여부 확인
+                            # 충돌처리
                             if (
                                     bullet_right > tile_left and
                                     bullet_left < tile_right and
@@ -71,8 +75,8 @@ class TiledMap:
         tree = ET.parse(tileset_source)
         root = tree.getroot()
         image_element = root.find('image')
-        margin = int(root.get('margin', 0))  # 기본값 0
-        spacing = int(root.get('spacing', 0))  # 기본값 0
+        margin = int(root.get('margin', 0))
+        spacing = int(root.get('spacing', 0))
 
         return {
             "image": os.path.join('Tiled', image_element.get('source')),
@@ -102,52 +106,39 @@ class TiledMap:
                 return tileset
         return None
 
-    def check_collision_with_player(self, player):
-        # 플레이어의 충돌 박스 가져오기
+    def check_horizontal_collision(self, player):
         player_left, player_bottom, player_right, player_top = player.get_collision_box()
-        player.is_on_platform = False  # 플랫폼 위 상태 초기화
 
         for platform in self.platforms:
-            platform_left, platform_bottom, platform_right, platform_top = platform
+            p_left, p_bottom, p_right, p_top = platform
 
-            # 플랫폼 상단 충돌 처리 (발판 역할)
-            if (
-                    player_bottom <= platform_top <= player_top  # 플레이어 발이 플랫폼 높이에 접근
-                    and player.vertical_velocity <= 0  # 아래로 떨어지는 중
-                    and player_right > platform_left
-                    and player_left < platform_right
-            ):
-                # 플레이어를 플랫폼 위에 위치
-                player.y = platform_top + player.height // 2
-                player.vertical_velocity = 0
-                player.is_jumping = False
-                player.is_on_platform = True
-                continue
-
-            # 플랫폼 하단 충돌 처리 (머리 충돌)
-            if (
-                    platform_bottom <= player_top <= platform_top  # 플레이어 머리가 플랫폼 하단에 접근
-                    and player.vertical_velocity > 0  # 위로 점프 중
-                    and player_right > platform_left
-                    and player_left < platform_right
-            ):
-
-                player.y = platform_bottom - player.height // 2
-                player.vertical_velocity = 0
-                return
-
-            # X축 충돌 처리
-            if (
-                    player_top > platform_bottom
-                    and player_bottom < platform_top
-            ):
+            # 수평 충돌은 플레이어의 높이가 플랫폼 범위 안에 있고,
+            # 수평 방향으로 겹쳤을 때 처리
+            if player_top > p_bottom and player_bottom < p_top:
                 # 왼쪽 벽 충돌
-                if player_right > platform_left > player_left:
-                    player.x = platform_left - player.width // 2
-
+                if player_right > p_left and player_left < p_left:
+                    player.x = p_left - player.width // 2
                 # 오른쪽 벽 충돌
-                elif player_left < platform_right < player_right:
-                    player.x = platform_right + player.width // 2
+                elif player_left < p_right and player_right > p_right:
+                    player.x = p_right + player.width // 2
+
+    def check_vertical_collision(self, player):
+        player_left, player_bottom, player_right, player_top = player.get_collision_box()
+        player.is_on_platform = False
+
+        for platform in self.platforms:
+            p_left, p_bottom, p_right, p_top = platform
+
+            # 수직 충돌 처리 (발 아래/위)
+            # 바닥 충돌
+            if player_bottom <= p_top <= player_top and player.vertical_velocity <= 0 and player_right > p_left and player_left < p_right:
+                player.y = p_top + player.height // 2
+                player.vertical_velocity = 0
+                player.is_on_platform = True
+            # 천장 충돌
+            if p_bottom <= player_top <= p_top and player.vertical_velocity > 0 and player_right > p_left and player_left < p_right:
+                player.y = p_bottom - player.height // 2
+                player.vertical_velocity = 0
 
     def draw(self):
         for layer in self.data['layers']:

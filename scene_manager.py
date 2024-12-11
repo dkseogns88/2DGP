@@ -10,7 +10,6 @@ from scenes.gameover_scene import GameOverScene
 class SceneManager:
     def __init__(self):
         self.current_scene = Menu_Scene()
-        self.previous_scene = None
         self.current_scene.enter()
 
     def change_scene(self, scene_name):
@@ -24,28 +23,24 @@ class SceneManager:
             self.current_scene = GameOverScene()
         elif scene_name == 'Menu_Scene':
             self.current_scene = Menu_Scene()
-            self.previous_scene = None
         elif scene_name == 'Back_Scene':
             self.current_scene = Back_Scene()
         elif scene_name == 'Game_Scene':
             self.current_scene = Game_Scene()
-            self.previous_scene = None
+        elif scene_name == 'Load_Saved_Game':
+            from save import Save
+            save = Save(None, None, [])  # player/enemies/traps 없이 초기화
+            saved_data = save.get_saved_data("save_state.json")
+            self.current_scene = Game_Scene()  # 우선 기본 씬 생성
+
+            if saved_data is not None:
+                # load_instance를 통해 세이브 상태 복원
+                self.current_scene.load_instance.load_state("save_state.json")
+            else:
+                print("[SceneManager] No save file found. Starting a new game.")
         elif scene_name == 'exit':
             pico2d.close_canvas()
             exit()
-        elif scene_name == 'Load_Saved_Game':
-            from save import Save
-            save = Save(None, None)  # 초기화용, load 시 player/enemy 필요없음
-            saved_data = save.get_saved_data("save_state.json")
-            if saved_data is not None:
-                self.current_scene = Game_Scene(saved_data)
-                self.previous_scene_name = 'Game_Scene'
-                self.previous_scene_data = saved_data
-            else:
-                self.current_scene = Game_Scene()
-                self.previous_scene_name = 'Game_Scene'
-                self.previous_scene_data = {}
-
         # 새로운 씬 초기화
         self.current_scene.enter()
         print(f"[SceneManager] Changing scene to: {scene_name}")

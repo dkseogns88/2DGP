@@ -13,6 +13,9 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "PC Computer - I Wanna Be The Guy - First Grasslands.tsx": {
+            "scaleInDock": 1
+        },
         "PC Computer - I Wanna Be the Boshy - Saves2.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 5.5
@@ -25,16 +28,16 @@
             "scale": 1.1689453125,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 190.77025898078534,
-                "y": 770.780284043442
+                "x": 526.9707602339181,
+                "y": 603.5355054302422
             }
         },
         "Stage1.tmx": {
             "scale": 1.1689453125,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 2231.0710108604844,
-                "y": 1111.2581453634084
+                "x": 512.4277360066833,
+                "y": 511.99999999999994
             }
         },
         "save.tsx": {
@@ -69,15 +72,15 @@
     "openFiles": [
         "CastleTile.tsx",
         "Stage1.json",
-        "Stage1.tmx",
-        "PC Computer - I Wanna Be the Boshy - Saves2.tsx"
+        "PC Computer - I Wanna Be the Boshy - Saves2.tsx",
+        "Stage1.json"
     ],
     "project": "FirstProject.tiled-project",
     "recentFiles": [
         "CastleTile.tsx",
+        "Stage1.json",
         "PC Computer - I Wanna Be the Boshy - Saves2.tsx",
         "Stage1.tmx",
-        "Stage1.json",
         "save.tsx",
         "save2a.tsx",
         "save1a.tsx",

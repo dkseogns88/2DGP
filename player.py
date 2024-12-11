@@ -2,7 +2,6 @@ import pico2d
 import pygame
 from bullet import Bullet
 
-
 class Player:
     def __init__(self):
 
@@ -74,12 +73,9 @@ class Player:
     def update(self, tiled_map):
         if not self.is_on_platform:
             self.vertical_velocity += self.gravity
-        self.y += self.vertical_velocity
 
-        # 충돌 처리
-        tiled_map.check_collision_with_player(self)
-
-        # 이동 및 상태 업데이트
+        # x축 이동 처리
+        prev_x = self.x
         if self.key_state[pico2d.SDLK_LEFT]:
             self.x -= self.speed
             self.state = 'walk'
@@ -90,6 +86,15 @@ class Player:
             self.last_direction = 1
         else:
             self.state = 'idle'
+
+        # x축 충돌 체크
+        tiled_map.check_horizontal_collision(self)
+
+        prev_y = self.y
+        self.y += self.vertical_velocity
+
+        # y축 충돌 체크
+        tiled_map.check_vertical_collision(self)
 
         # 점프 상태 초기화
         if self.is_on_platform:

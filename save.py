@@ -1,9 +1,10 @@
 import json
 import os
 class Save:
-    def __init__(self, player, enemies):
+    def __init__(self, player, enemies, traps):
         self.player = player
         self.enemies = enemies
+        self.traps = traps
         self.save_data = None
 
     def save_state(self):
@@ -33,7 +34,6 @@ class Save:
         print("Game state saved.")
 
     def get_saved_data(self, save_file="save_state.json"):
-        # 파일에서 저장된 데이터 읽기
         if not os.path.exists(save_file):
             print(f"No save file found at {save_file}.")
             return None
