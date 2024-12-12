@@ -13,6 +13,9 @@ from trap import Trap
 from movingtrap import MovingTrap
 from trigger import Trigger
 
+SCREEN_WIDTH = 1024
+SCREEN_HEIGHT = 1024
+
 class Game_Scene(Scene):
     def __init__(self, saved_data=None):
         self.back_scene = Back_Scene()
@@ -138,6 +141,9 @@ class Game_Scene(Scene):
                                   load_instance=self.load_instance)
         self.map.check_vertical_collision(self.player)
         self.map.check_horizontal_collision(self.player)
+
+        self.player.clamp_position(SCREEN_WIDTH, SCREEN_HEIGHT)
+
         # 트리거 체크
         for trig in self.triggers:
             trig.check_activation(self.player)

@@ -2,8 +2,11 @@ import pico2d
 import pygame
 from bullet import Bullet
 
+
 class Player:
     def __init__(self):
+        self.width = 50
+        self.height = 50
 
         self.left_idle_images = [
             pico2d.load_image('resource/playercharacter/left_idle1.png'),
@@ -69,6 +72,26 @@ class Player:
         self.last_direction = 1
         self.width = int(20 * self.scale)
         self.height = int(20 * self.scale)
+
+
+    def clamp_position(self, screen_width, screen_height):
+        half_width = self.width / 2
+        half_height = self.height / 2
+
+        # x축 클램핑
+        if self.x < half_width:
+            self.x = half_width
+        elif self.x > screen_width - half_width:
+            self.x = screen_width - half_width
+
+        # y축 클램핑
+        if self.y < half_height:
+            self.y = half_height
+            self.vertical_velocity = 0
+            self.is_on_platform = True
+        elif self.y > screen_height - half_height:
+            self.y = screen_height - half_height
+            self.vertical_velocity = 0
 
     def update(self, tiled_map):
         if not self.is_on_platform:
