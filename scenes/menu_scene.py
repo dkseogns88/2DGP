@@ -13,8 +13,8 @@ class Menu_Scene(Scene):
     def draw(self):
         pico2d.clear_canvas()
         self.background.draw(512, 512)
-        button_width = self.start_button.w // 2  # 가로 크기 절반
-        button_height = self.start_button.h // 2  # 세로 크기 절반
+        button_width = self.start_button.w // 2
+        button_height = self.start_button.h // 2
         self.start_button.clip_draw(0, 0, self.start_button.w, self.start_button.h,
                                     self.start_button_pos[0], self.start_button_pos[1],
                                     button_width, button_height)

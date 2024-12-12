@@ -17,10 +17,11 @@ SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 1024
 
 class Game_Scene(Scene):
-    def __init__(self, saved_data=None):
+    def __init__(self, saved_data=None, stage=1):
         self.back_scene = Back_Scene()
         self.back_scene.start_music()
-        self.map = TiledMap('Tiled/Stage1.json')
+        self.stage = stage
+        self.map = TiledMap(f'Tiled/Stage{self.stage}.json')
         self.player = Player()
         self.enemies = []
         self.traps = []
@@ -34,8 +35,6 @@ class Game_Scene(Scene):
             'left': pico2d.load_image('resource/movingtrap_left.png'),
             'right': pico2d.load_image('resource/movingtrap_right.png')
         }
-
-
 
         self.init_new_game()
 
@@ -93,7 +92,7 @@ class Game_Scene(Scene):
                             direction = "up"
                             speed = 150
 
-                            moving_trap = MovingTrap(gid, tile_x, tile_y, direction, speed, self.moving_trap_image)
+                            moving_trap = MovingTrap(gid, tile_x, tile_y, direction, speed, self.trap_images[direction])
                             self.traps.append(moving_trap)
                             # MovingTrap은 맵에서 제거해 타일맵이 그리지 않도록 함
                             layer['data'][y * self.map.map_width + x] = 0
@@ -139,6 +138,9 @@ class Game_Scene(Scene):
         self.player.handle_events(pico2d.get_events(),
                                   save_instance=self.save_instance,
                                   load_instance=self.load_instance)
+
+        print(f"[Game_Scene] Player Position: ({self.player.x}, {self.player.y})")
+
         self.map.check_vertical_collision(self.player)
         self.map.check_horizontal_collision(self.player)
 
@@ -147,6 +149,12 @@ class Game_Scene(Scene):
         # 트리거 체크
         for trig in self.triggers:
             trig.check_activation(self.player)
+
+        if self.check_next_stage():
+            scene_change = self.transfer_next_stage()
+            if scene_change:
+                return scene_change
+            return
 
         dt = 1 / 60  # FPS 기준
         # 트랩 업데이트 및 충돌 체크
@@ -194,6 +202,66 @@ class Game_Scene(Scene):
         # 비활성화된 적 제거
         self.enemies = [enemy for enemy in self.enemies if enemy]
 
+    def draw_transition_zone(self):
+        transition_zone_width = 50
+        transition_zone_height = 50
+        map_right = self.map.map_width * self.map.tile_width
+        map_bottom = 0
+
+        left = map_right - transition_zone_width
+        bottom = map_bottom
+        right = map_right
+        top = map_bottom + transition_zone_height
+
+
+        pico2d.draw_rectangle_outline(left, bottom, right, top)
+
+    def check_next_stage(self):
+        # 스테이지 전환 포탈 범위
+        transition_zone_width = 100
+        transition_zone_height = 100
+
+        player_x, player_y = self.player.x, self.player.y
+
+        # 스테이지 전환 포탈 위치
+        map_right = self.map.map_width * self.map.tile_width
+        map_bottom = 35
+
+        # 플레이어가 범위내에있는지 체크
+        if (map_right - transition_zone_width <= player_x <= map_right) and (
+                map_bottom <= player_y <= transition_zone_height):
+            print(f"[Game_Scene] Player at ({player_x}, {player_y}) reached the transition zone.")
+            return True
+        return False
+
+    def transfer_next_stage(self):
+        self.stage += 1  # 스테이지 번호 증가
+        total_stages = 3  # 총 스테이지 수
+
+        if self.stage > total_stages:
+            print("[Game_Scene] All stages completed! Triggering GameClear_Scene.")
+            # 모든 스테이지 클리어시
+            # SceneManager를 통해 'GameClear_Scene'으로 전환하도록 반환
+            return 'GameClear_Scene'
+
+        print(f"[Game_Scene] Transitioning to Stage {self.stage}")
+
+        # 현재 스테이지 종료 처리
+        self.exit()
+
+        # 새로운 스테이지 로드
+        self.map = TiledMap(f'Tiled/Stage{self.stage}.json')
+        self.enemies = []
+        self.traps = []
+        self.save_instance = Save(self.player, self.enemies, self.traps)
+        self.load_instance = Load(self.player, self.enemies, self)
+
+        # 새로운 스테이지 초기화
+        self.init_new_game()
+
+        # SceneManager에 스테이지 전환을 알리기 위해 'Game_Scene'을 반환
+        return f'Game_Scene:{self.stage}'
+
     def draw(self):
         pico2d.clear_canvas()
         self.map.draw()
@@ -204,6 +272,7 @@ class Game_Scene(Scene):
         for trap in self.traps:
             if isinstance(trap, MovingTrap):
                 trap.draw()
+
 
         pico2d.update_canvas()
 
