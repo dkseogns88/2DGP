@@ -5,17 +5,22 @@ class Trap:
         self.x = x
         self.y = y
         self.active = True
+        self.width = 32
+        self.height = 32
 
     def check_player_collision(self, player, tiled_map):
         player_left, player_bottom, player_right, player_top = player.get_collision_box()
         trap_left, trap_bottom, trap_right, trap_top = self.get_collision_box()
 
-        return not (
-            player_right < trap_left or
-            player_left > trap_right or
-            player_top < trap_bottom or
-            player_bottom > trap_top
+        collision = not (
+                player_right < trap_left or
+                player_left > trap_right or
+                player_top < trap_bottom or
+                player_bottom > trap_top
         )
+        if collision:
+            self.active = False
+        return collision
 
     def get_collision_box(self):
         size = 32  # 트랩 크기
@@ -27,7 +32,8 @@ class Trap:
         )
 
     def draw(self):
-        pico2d.draw_rectangle(
-            self.x - 16, self.y - 16,
-            self.x + 16, self.y + 16
-        )
+        if self.active:
+            pico2d.draw_rectangle(
+                self.x - 16, self.y - 16,
+                self.x + 16, self.y + 16
+            )

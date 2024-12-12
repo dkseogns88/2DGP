@@ -16,7 +16,7 @@ class MovingTrap(Trap):
         dy = abs(player.y - self.y)
 
 
-        if self.direction == "up" and dx <= 50:
+        if self.direction == "up" and dx <= 30:
             self.triggered = True
         elif self.direction == "down" and dx <= 50:
             self.triggered = True

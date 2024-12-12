@@ -1,5 +1,6 @@
 import pico2d
 import pygame
+import json
 import os
 from scenes.scene import Scene
 from scenes.back_scene import Back_Scene
@@ -16,11 +17,18 @@ from trigger import Trigger
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 1024
 
+# 스테이지별 Trap GID 데이터
+STAGE_TRAP_GIDS = {
+    1: [105, 123, 132, 114],
+    2: [65, 74, 83, 92],
+    3: [1, 2, 3, 4],
+}
+
 # 스테이지별 Enemy 데이터
 STAGE_ENEMIES = {
     1: [
-        {"x": 200, "y": 300},
-        {"x": 400, "y": 500},
+        {"x": 200, "y": 40},
+        {"x": 400, "y": 40},
     ],
     2: [
         {"x": 300, "y": 400},
@@ -35,8 +43,10 @@ STAGE_ENEMIES = {
 # 스테이지별 MovingTrap 데이터
 STAGE_TRAPS = {
     1: [
-        {"x": 150, "y": 250, "direction": "up", "speed": 500},
-        {"x": 350, "y": 450, "direction": "left", "speed": 500},
+        {"x": 180, "y": 0, "direction": "up", "speed": 600},
+        {"x": 17, "y": 785, "direction": "right", "speed": 500},
+        {"x": 768, "y": 0, "direction": "up", "speed": 1000},
+
     ],
     2: [
         {"x": 250, "y": 350, "direction": "down", "speed": 500},
@@ -67,9 +77,21 @@ class Game_Scene(Scene):
             'left': pico2d.load_image('resource/movingtrap_left.png'),
             'right': pico2d.load_image('resource/movingtrap_right.png')
         }
-
+        self.load_stage_data()
         self.init_new_game()
 
+    def load_stage_data(self):
+        stage_file = f'Stage{self.stage}.json'
+        stage_file_path = os.path.join('Tiled', stage_file)
+
+        if not os.path.exists(stage_file_path):
+            print(f"Error: '{stage_file_path}' does not exist.")
+            self.stages_data = {}
+            return
+
+        with open(stage_file_path, 'r') as f:
+            self.stages_data = json.load(f)
+        print(f"Loaded stage data from '{stage_file_path}'")
 
     def enter(self):
         print("[Game_Scene] Entered Game_Scene")
@@ -86,6 +108,7 @@ class Game_Scene(Scene):
         map_left = 0
         map_right = self.map.map_width * self.map.tile_width
 
+        stage_data = self.stages_data
 
 
         # 스테이지별 Enemy 생성
@@ -120,32 +143,21 @@ class Game_Scene(Scene):
         self.triggers.append(trigger)
 
         # 타일맵 스캔
+        trap_gids = STAGE_TRAP_GIDS.get(self.stage, [])
         for layer in self.map.data['layers']:
             if layer['type'] == 'tilelayer':
                 for y in range(self.map.map_height):
                     for x in range(self.map.map_width):
                         gid = layer['data'][y * self.map.map_width + x]
-
-                        if gid == 105:
-                            # 정적 함정 위치 계산
+                        # 현재 스테이지의 Trap GIDs 확인
+                        if gid in trap_gids:
                             tile_x = x * self.map.tile_width + self.map.tile_width // 2
                             tile_y = (self.map.map_height - y - 1) * self.map.tile_height + self.map.tile_height // 2
-                            # 정적 함정 객체 생성
                             static_trap = Trap(gid, tile_x, tile_y)
                             self.traps.append(static_trap)
-                            # 타일맵에서는 제거하지 않음 -> 타일맵이 그대로 그림
 
-                        elif gid == 123:
-                            # MovingTrap 기존 로직
-                            tile_x = x * self.map.tile_width + self.map.tile_width // 2
-                            tile_y = (self.map.map_height - y - 1) * self.map.tile_height + self.map.tile_height // 2
 
-                            direction = "up"
-                            speed = 150
 
-                            moving_trap = MovingTrap(gid, tile_x, tile_y, direction, speed, self.trap_images[direction])
-                            self.traps.append(moving_trap)
-                            layer['data'][y * self.map.map_width + x] = 0
 
 
     def init_new_game(self):
@@ -207,8 +219,11 @@ class Game_Scene(Scene):
                 trap.update(dt, self.map.map_width * self.map.tile_width,
                             self.map.map_height * self.map.tile_height, self.player)
 
-            if trap.check_player_collision(self.player, self.map):
-                print("[Game_Scene] Player hit a trap. Triggering GameOver.")
+            if trap.active and trap.check_player_collision(self.player, self.map):
+                if isinstance(trap, MovingTrap):
+                    print("[Game_Scene] Player hit a MovingTrap. Triggering GameOver.")
+                else:
+                    print("[Game_Scene] Player hit a static Trap. Triggering GameOver.")
                 self.game_over = True
                 return 'GameOver_Scene'
 
@@ -313,8 +328,7 @@ class Game_Scene(Scene):
         for enemy in self.enemies:
             enemy.draw()
         for trap in self.traps:
-            if isinstance(trap, MovingTrap):
-                trap.draw()
+            trap.draw()
 
 
         pico2d.update_canvas()

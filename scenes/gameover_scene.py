@@ -47,6 +47,10 @@ class GameOverScene:
                     else:
                         print("[GameOverScene] No save file found. Restart aborted.")
                         return 'Menu_Scene'
+                if event.key == pico2d.SDLK_ESCAPE:
+                    return 'Menu_Scene'
+
+
 
     def update(self):
         pass
