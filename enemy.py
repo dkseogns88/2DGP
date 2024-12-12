@@ -6,6 +6,7 @@ class Enemy:
     def __init__(self, x, y, width=32, height=32, gravity=-0.5):
         self.x = x
         self.y = y
+
         self.width = width
         self.height = height
         self.gravity = gravity

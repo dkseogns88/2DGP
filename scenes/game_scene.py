@@ -16,6 +16,38 @@ from trigger import Trigger
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 1024
 
+# 스테이지별 Enemy 데이터
+STAGE_ENEMIES = {
+    1: [
+        {"x": 200, "y": 300},
+        {"x": 400, "y": 500},
+    ],
+    2: [
+        {"x": 300, "y": 400},
+        {"x": 600, "y": 700},
+        {"x": 800, "y": 600},
+    ],
+    3: [
+        {"x": 500, "y": 800},
+    ],
+}
+
+# 스테이지별 MovingTrap 데이터
+STAGE_TRAPS = {
+    1: [
+        {"x": 150, "y": 250, "direction": "up", "speed": 500},
+        {"x": 350, "y": 450, "direction": "left", "speed": 500},
+    ],
+    2: [
+        {"x": 250, "y": 350, "direction": "down", "speed": 500},
+        {"x": 550, "y": 650, "direction": "right", "speed": 500},
+    ],
+    3: [
+        {"x": 450, "y": 750, "direction": "up", "speed": 500},
+        {"x": 700, "y": 850, "direction": "left", "speed": 500},
+    ],
+}
+
 class Game_Scene(Scene):
     def __init__(self, saved_data=None, stage=1):
         self.back_scene = Back_Scene()
@@ -54,11 +86,30 @@ class Game_Scene(Scene):
         map_left = 0
         map_right = self.map.map_width * self.map.tile_width
 
-        map_center_x = (self.map.map_width * self.map.tile_width) // 2
-        map_center_y = (self.map.map_height * self.map.tile_height) // 2
-        enemy = Enemy(map_center_x, map_center_y)
-        enemy.behavior_tree = BehaviorTree(enemy, (map_left, map_right))
-        self.enemies.append(enemy)
+
+
+        # 스테이지별 Enemy 생성
+        for enemy_data in STAGE_ENEMIES.get(self.stage, []):
+            enemy = Enemy(
+                x=enemy_data["x"],
+                y=enemy_data["y"]
+            )
+            enemy.behavior_tree = BehaviorTree(enemy, (map_left, map_right))
+            self.enemies.append(enemy)
+
+        # 스테이지별 MovingTrap 생성
+        for trap_data in STAGE_TRAPS.get(self.stage, []):
+            moving_trap = MovingTrap(
+                trap_tile_gid=None,
+                x=trap_data["x"],
+                y=trap_data["y"],
+                direction=trap_data["direction"],
+                speed=trap_data["speed"],
+                image=self.trap_images[trap_data["direction"]]
+            )
+            self.traps.append(moving_trap)
+
+
         def active_trap():
             if self.traps:
                 self.traps[0].triggered = True
@@ -94,7 +145,6 @@ class Game_Scene(Scene):
 
                             moving_trap = MovingTrap(gid, tile_x, tile_y, direction, speed, self.trap_images[direction])
                             self.traps.append(moving_trap)
-                            # MovingTrap은 맵에서 제거해 타일맵이 그리지 않도록 함
                             layer['data'][y * self.map.map_width + x] = 0
 
 
@@ -111,17 +161,10 @@ class Game_Scene(Scene):
 
         # 맵, 적, 함정 등을 세팅
         self.setup()
-        trap_positions = [
-            (500, 300, 'up', 150),
-            (330, 1000, 'down', 50),
-            (700, 500, 'left', 100),
-            (800, 200, 'right', 200)
-        ]
 
-        for (x, y, direction, speed) in trap_positions:
-            image = self.trap_images[direction]
-            moving_trap = MovingTrap(None, x, y, direction, speed, image)
-            self.traps.append(moving_trap)
+
+
+
 
 
     def check_collision(self, obj1, obj2):

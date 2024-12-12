@@ -16,13 +16,13 @@ class MovingTrap(Trap):
         dy = abs(player.y - self.y)
 
 
-        if self.direction == "up" and dx <= 100:
+        if self.direction == "up" and dx <= 50:
             self.triggered = True
         elif self.direction == "down" and dx <= 50:
             self.triggered = True
         elif self.direction == "left" and dy <= 50:
             self.triggered = True
-        elif self.direction == "right" and dy <= 100:
+        elif self.direction == "right" and dy <= 50:
             self.triggered = True
 
         # 트리거가 작동시 이동
@@ -47,4 +47,5 @@ class MovingTrap(Trap):
                 self.active = False
 
     def draw(self):
-        self.image.draw(self.x, self.y)
+        if self.active:
+            self.image.draw(self.x, self.y)
