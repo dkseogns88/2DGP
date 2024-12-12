@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "Stage2.json",
+    "activeFile": "Stage2.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -28,16 +28,16 @@
             "scale": 1.1689453125,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 526.970760233918,
-                "y": 603.1077694235589
+                "x": 712.6081871345029,
+                "y": 614.2289055973266
             }
         },
         "Stage1.tmx": {
             "scale": 1.1689453125,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 781.045948203843,
-                "y": 619.3617376775272
+                "x": 526.9707602339181,
+                "y": 603.5355054302422
             }
         },
         "Stage2.json": {
@@ -45,15 +45,15 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 512,
-                "y": 512
+                "y": 512.5
             }
         },
         "Stage2.tmx": {
-            "scale": 1.1689453125,
+            "scale": 0.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 51.32832080200501,
-                "y": 314.38596491228066
+                "x": 556,
+                "y": 270
             }
         },
         "Stage3.json": {
@@ -91,11 +91,11 @@
     "last.imagePath": "C:/2DGP/Tiled",
     "map.height": 32,
     "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
-    "map.lastUsedFormat": "json",
+    "map.lastUsedFormat": "tmx",
     "map.width": 32,
     "openFiles": [
         "CastleTile.tsx",
-        "Stage1.tmx",
+        "Stage1.json",
         "PC Computer - I Wanna Be the Boshy - Saves2.tsx",
         "Stage2.tmx",
         "Stage2.json",
@@ -104,12 +104,12 @@
     "project": "FirstProject.tiled-project",
     "recentFiles": [
         "CastleTile.tsx",
-        "Stage1.tmx",
+        "Stage1.json",
         "PC Computer - I Wanna Be the Boshy - Saves2.tsx",
-        "Stage2.tmx",
         "Stage3.json",
         "Stage2.json",
-        "Stage1.json",
+        "Stage2.tmx",
+        "Stage1.tmx",
         "save.tsx",
         "save2a.tsx",
         "save1a.tsx",

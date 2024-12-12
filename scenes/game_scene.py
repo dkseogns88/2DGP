@@ -31,9 +31,7 @@ STAGE_ENEMIES = {
         {"x": 400, "y": 40},
     ],
     2: [
-        {"x": 300, "y": 400},
-        {"x": 600, "y": 700},
-        {"x": 800, "y": 600},
+
     ],
     3: [
         {"x": 500, "y": 800},
@@ -49,8 +47,8 @@ STAGE_TRAPS = {
 
     ],
     2: [
-        {"x": 250, "y": 350, "direction": "down", "speed": 500},
-        {"x": 550, "y": 650, "direction": "right", "speed": 500},
+        {"x": 80, "y": 18, "direction": "up", "speed": 500},
+
     ],
     3: [
         {"x": 450, "y": 750, "direction": "up", "speed": 500},
@@ -162,8 +160,13 @@ class Game_Scene(Scene):
 
     def init_new_game(self):
         # 새로운 게임 시작 시 기본 설정
-        self.player.x = 30
-        self.player.y = 1000
+
+        initial_positions = {
+            1: (30, 1000),
+            2: (10, 50),
+            3: (10, 50),
+        }
+        self.player.x, self.player.y = initial_positions.get(self.stage, (30, 1000))
         self.player.vertical_velocity = 0
         self.player.is_jumping = False
 
@@ -355,6 +358,10 @@ class Game_Scene(Scene):
                     self.delete_save_on_exit = True  # 메뉴로 나갈 때 세이브 파일 삭제
                     self.back_scene.stop_music()
                     return 'Menu_Scene'
+                elif event.key == pico2d.SDLK_n:
+                    self.player.x = 0
+                    self.player.y = 50
+                    return self.transfer_next_stage()
 
         self.player.handle_events(events)
 
