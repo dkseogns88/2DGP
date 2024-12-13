@@ -165,49 +165,45 @@ enemy , behavior tree 를 생성하여 간단한 몬스터배치
  Player, Enemy, Trap, Save와 load 를 이곳에서 처리함
 
 3. player/
- 플레이어 캐릭터, 움직임, 충돌 감지 및 기타 게임 내 상호작용을 처리
-+ 상호작용:
-Game_Scene: 게임 씬으로부터 업데이트를 받고, 플레이어의 행동에 따른 이벤트를 전달
-Enemies & Traps: 적 및 트랩과의 충돌을 감지하고 처리
-Save & Load: Save 및 Load 클래스와 연동하여 플레이어 상태를 저장 및 불러오기(점프유무,위치,세이브유무)
+플레이어 캐릭터, 움직임, 충돌 감지 및 기타 게임 내 상호작용을 처리
++ Game_Scene: 게임 씬으로부터 업데이트를 받고, 플레이어의 행동에 따른 이벤트를 전달
++ Enemies & Traps: 적 및 트랩과의 충돌을 감지하고 처리
++ Save & Load: Save 및 Load 클래스와 연동하여 플레이어 상태를 저장 및 불러오기(점프유무,위치,세이브유무)
 
 5. enemy/
 게임 내 적 캐릭터를 나타내며, behavior tree 를 통해 행동을 결정
-+ 상호작용:
-Game_Scene: 게임 씬에 의해 업데이트 및 렌더링
-Player: 플레이어와의 충돌을 감지하여 게임 오버시킴
-Bullet: 플레이어가 발사한 총알에 사망
-BehaviorTree: 행동 트리를 통해 적의 움직임과 행동을 제어
++ Game_Scene: 게임 씬에 의해 업데이트 및 렌더링
++ Player: 플레이어와의 충돌을 감지하여 게임 오버시킴
++ Bullet: 플레이어가 발사한 총알에 사망
++ BehaviorTree: 행동 트리를 통해 적의 움직임과 행동을 제어
 
 6. behaviortree/
 적의 AI 행동을 구현
-+ 상호작용:
-Enemy:적 인스턴스의 행동을 제어하여 움직임과 행동을 결정
++ Enemy:적 인스턴스의 행동을 제어하여 움직임과 행동을 결정
 
 7. Trap & MovingTrap/
 게임 환경 내 정적 및 동적 트랩을 구현
-+ 상호작용:
-Game_Scene: 게임 씬에 의해 관리되고 업데이트되며, 플레이어와의 충돌을 감지
-Player: 플레이어와의 충돌을 감지하여 게임 오버 
-Triggers: 트리거를 통해 Movingtrap 작동
++ Game_Scene: 게임 씬에 의해 관리되고 업데이트되며, 플레이어와의 충돌을 감지
++ Player: 플레이어와의 충돌을 감지하여 게임 오버 
++ Triggers: 트리거를 통해 Movingtrap 작동
 
 8. bullet/
 플레이어가 발사하는 총알 오브젝트
-+ 상호작용:
-Player: 플레이어가 총알을 직접발사
-Enemy: 총알에맞는적 사살
+
++ Player: 플레이어가 총알을 직접발사
++ Enemy: 총알에맞는적 사살
 
 9. Save Load
 게임상태의 저장과 불러오기
-+ 상호작용:
-Game_Scene & Player: 게임 씬과 플레이어 상태를 저장하고 불러옴
-Load: 저장된 게임 상태를 불러와 복원
+
++ Game_Scene & Player: 게임 씬과 플레이어 상태를 저장하고 불러옴
++ Load: 저장된 게임 상태를 불러와 복원
 
 10. TiledMap
 게임 맵을 관리하며, 타일 데이터를 로드하고 맵 레이아웃에 따른 충돌처리
-+ 상호작용:
-Game_Scene: 맵을 로드하고 그리기
-Player: 맵과 플레이어의 충돌처리
+
++ Game_Scene: 맵을 로드하고 그리기
++ Player: 맵과 플레이어의 충돌처리
   
 
 ---
