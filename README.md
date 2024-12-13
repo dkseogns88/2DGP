@@ -100,6 +100,7 @@ enemy , behavior tree 를 생성하여 간단한 몬스터배치
    - 맵 확장
 
   ------------- 여기까지 부분완료
+![캡처_2024_12_13_10_22_36_933](https://github.com/user-attachments/assets/fd8be879-318f-4aad-8d8d-6a4d98dee6bf)
 
 - 7주차일정
    - 보스 + 보스공격패턴 제작
