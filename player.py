@@ -1,4 +1,5 @@
 import pico2d
+from utils import resource_path
 import pygame
 from bullet import Bullet
 
@@ -9,36 +10,36 @@ class Player:
         self.height = 50
 
         self.left_idle_images = [
-            pico2d.load_image('resource/playercharacter/left_idle1.png'),
-            pico2d.load_image('resource/playercharacter/left_idle2.png')
+            pico2d.load_image(resource_path('resource/playercharacter/left_idle1.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/left_idle2.png'))
         ]
 
         self.left_walk_images = [
-            pico2d.load_image('resource/playercharacter/left_walk1.png'),
-            pico2d.load_image('resource/playercharacter/left_walk2.png'),
-            pico2d.load_image('resource/playercharacter/left_walk3.png'),
-            pico2d.load_image('resource/playercharacter/left_walk4.png'),
-            pico2d.load_image('resource/playercharacter/left_walk5.png'),
-            pico2d.load_image('resource/playercharacter/left_walk6.png'),
-            pico2d.load_image('resource/playercharacter/left_walk7.png'),
-            pico2d.load_image('resource/playercharacter/left_walk8.png')
+            pico2d.load_image(resource_path('resource/playercharacter/left_walk1.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/left_walk2.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/left_walk3.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/left_walk4.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/left_walk5.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/left_walk6.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/left_walk7.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/left_walk8.png'))
         ]
 
 
         self.right_idle_images = [
-            pico2d.load_image('resource/playercharacter/right_idle1.png'),
-            pico2d.load_image('resource/playercharacter/right_idle2.png')
+            pico2d.load_image(resource_path('resource/playercharacter/right_idle1.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/right_idle2.png'))
         ]
 
         self.right_walk_images = [
-            pico2d.load_image('resource/playercharacter/right_walk1.png'),
-            pico2d.load_image('resource/playercharacter/right_walk2.png'),
-            pico2d.load_image('resource/playercharacter/right_walk3.png'),
-            pico2d.load_image('resource/playercharacter/right_walk4.png'),
-            pico2d.load_image('resource/playercharacter/right_walk5.png'),
-            pico2d.load_image('resource/playercharacter/right_walk6.png'),
-            pico2d.load_image('resource/playercharacter/right_walk7.png'),
-            pico2d.load_image('resource/playercharacter/right_walk8.png')
+            pico2d.load_image(resource_path('resource/playercharacter/right_walk1.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/right_walk2.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/right_walk3.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/right_walk4.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/right_walk5.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/right_walk6.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/right_walk7.png')),
+            pico2d.load_image(resource_path('resource/playercharacter/right_walk8.png'))
         ]
         self.bullets = []
         self.screen_width = 1024
@@ -54,9 +55,9 @@ class Player:
         self.is_on_platform = True
         self.jump_count = 0
 
-        self.jump1_sound = pygame.mixer.Sound('resource/player_jump1.wav')
-        self.jump2_sound = pygame.mixer.Sound('resource/player_jump2.wav')
-        self.fire_sound = pygame.mixer.Sound('resource/player_fire.wav')
+        self.jump1_sound = pygame.mixer.Sound(resource_path('resource/player_jump1.wav'))
+        self.jump2_sound = pygame.mixer.Sound(resource_path('resource/player_jump2.wav'))
+        self.fire_sound = pygame.mixer.Sound(resource_path('resource/player_fire.wav'))
 
         self.frame_index = 0
         self.frame_count = 0

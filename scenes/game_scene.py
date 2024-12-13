@@ -1,4 +1,5 @@
 import pico2d
+from utils import resource_path
 import pygame
 import json
 import os
@@ -70,10 +71,10 @@ class Game_Scene(Scene):
         self.game_over = False
         self.skip_collision_check = False
         self.trap_images = {
-            'up': pico2d.load_image('resource/movingtrap_up.png'),
-            'down': pico2d.load_image('resource/movingtrap_down.png'),
-            'left': pico2d.load_image('resource/movingtrap_left.png'),
-            'right': pico2d.load_image('resource/movingtrap_right.png')
+            'up': pico2d.load_image(resource_path('resource/movingtrap_up.png')),
+            'down': pico2d.load_image(resource_path('resource/movingtrap_down.png')),
+            'left': pico2d.load_image(resource_path('resource/movingtrap_left.png')),
+            'right': pico2d.load_image(resource_path('resource/movingtrap_right.png'))
         }
         self.load_stage_data()
         self.init_new_game()

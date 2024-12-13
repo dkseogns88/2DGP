@@ -1,12 +1,14 @@
 import pico2d
+from pico2d import load_image
+from utils import resource_path
 from scenes.scene import Scene
 
 
 class Menu_Scene(Scene):
     def __init__(self):
-        self.background = pico2d.load_image('resource/menu_background.png')
-        self.start_button = pico2d.load_image('resource/startbutton.png')
-        self.exit_button = pico2d.load_image('resource/exitbutton.png')
+        self.background = load_image(resource_path("resource/menu_background.png"))
+        self.start_button = load_image(resource_path('resource/startbutton.png'))
+        self.exit_button = load_image(resource_path('resource/exitbutton.png'))
         self.start_button_pos = (512, 300)
         self.exit_button_pos = (512, 100)
 

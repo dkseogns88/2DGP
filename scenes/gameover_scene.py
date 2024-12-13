@@ -1,4 +1,6 @@
 import pico2d
+from utils import resource_path
+from pico2d import load_image
 import pygame
 import os
 
@@ -10,9 +12,9 @@ class GameOverScene:
             except Exception as e:
                 print(f"[GameOverScene] Error initializing pygame mixer: {e}")
 
-        self.bg_image = pico2d.load_image('resource/bloodbackground.jpg')
-        self.image = pico2d.load_image('resource/gameoverimg.png')
-        self.gameover_music = pygame.mixer.Sound('resource/gameover.ogg')
+        self.bg_image = load_image(resource_path('resource/bloodbackground.jpg'))
+        self.image = load_image(resource_path('resource/gameoverimg.png'))
+        self.gameover_music = pygame.mixer.Sound(resource_path('resource/gameover.ogg'))
         self.gameover_music.set_volume(0.5)
         self.gameover_music.play(loops=-1)
 

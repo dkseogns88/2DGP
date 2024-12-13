@@ -1,4 +1,5 @@
 import pico2d
+from utils import resource_path
 import os
 import json
 import xml.etree.ElementTree as ET
