@@ -5,7 +5,8 @@ from bullet import Bullet
 
 
 class Player:
-    def __init__(self):
+    def __init__(self, game_scene):
+        self.game_scene = game_scene
         self.width = 50
         self.height = 50
 
@@ -168,7 +169,8 @@ class Player:
 
                 # 발사 키 (스페이스바)
                 elif event.key == pico2d.SDLK_SPACE:
-                    self.bullets.append(Bullet(self.x, self.y, self.last_direction))
+                    new_bullet = Bullet(self.x, self.y, self.last_direction)
+                    self.game_scene.bullets.append(new_bullet)
                     self.fire_sound.play()
 
                 # 이동 키 처리 (왼쪽/오른쪽)
@@ -180,9 +182,9 @@ class Player:
                     self.key_state[event.key] = False
 
     def get_collision_box(self):
-        left = self.x - self.width // 3
+        left = self.x - self.width // 3.2
         bottom = self.y - self.height // 2
-        right = self.x + self.width // 3
+        right = self.x + self.width // 3.2
         top = self.y + self.height // 3.5
         return left, bottom, right, top
 

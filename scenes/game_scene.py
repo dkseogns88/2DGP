@@ -7,6 +7,8 @@ from scenes.scene import Scene
 from scenes.back_scene import Back_Scene
 from tiled_map import TiledMap
 from player import Player
+from bullet import Bullet
+from save_box import SaveBox
 from enemy import Enemy
 from behavior_tree import BehaviorTree
 from save import Save
@@ -22,7 +24,7 @@ SCREEN_HEIGHT = 1024
 STAGE_TRAP_GIDS = {
     1: [105, 123, 132, 114],
     2: [65, 74, 83, 92],
-    3: [1, 2, 3, 4],
+
 }
 
 # 스테이지별 Enemy 데이터
@@ -34,9 +36,8 @@ STAGE_ENEMIES = {
     2: [
 
     ],
-    3: [
-        {"x": 500, "y": 800},
-    ],
+
+
 }
 
 # 스테이지별 MovingTrap 데이터
@@ -51,10 +52,8 @@ STAGE_TRAPS = {
         {"x": 80, "y": 18, "direction": "up", "speed": 500},
 
     ],
-    3: [
-        {"x": 450, "y": 750, "direction": "up", "speed": 500},
-        {"x": 700, "y": 850, "direction": "left", "speed": 500},
-    ],
+
+
 }
 
 class Game_Scene(Scene):
@@ -62,12 +61,14 @@ class Game_Scene(Scene):
         self.back_scene = Back_Scene()
         self.back_scene.start_music()
         self.stage = stage
-        self.map = TiledMap(f'Tiled/Stage{self.stage}.json')
-        self.player = Player()
+        self.map = TiledMap(f'Stage{self.stage}.json')
+        self.save_boxes = self._create_save_boxes()
+        self.player = Player(self)
         self.enemies = []
         self.traps = []
-        self.save_instance = Save(self.player, self.enemies, self.traps)
-        self.load_instance = Load(self.player, self.enemies,self)
+        self.bullets = []
+        self.save_instance = Save(self.player, self.enemies, self.traps, self)
+        self.load_instance = Load(self.player, self.enemies, self.traps, self)
         self.game_over = False
         self.skip_collision_check = False
         self.trap_images = {
@@ -79,9 +80,26 @@ class Game_Scene(Scene):
         self.load_stage_data()
         self.init_new_game()
 
+    def _create_save_boxes(self):
+        # 각 스테이지에 맞는 SaveBox 객체를 생성합니다.
+        save_boxes = []
+        if self.stage == 1:
+            save_boxes.append(SaveBox(280, 900, 32, 32))
+        elif self.stage == 2:
+            save_boxes.append(SaveBox(300, 400, 32, 32))
+            # 추가 스테이지에 따라 SaveBox를 더 추가할 수 있습니다.
+        return save_boxes
+
+    def update_save_boxes(self):
+        self.save_boxes = self._create_save_boxes()
+
     def load_stage_data(self):
+        # 현재 파일의 디렉토리를 기준으로 'Tiled' 폴더 경로 설정
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        tiled_dir = os.path.join(base_dir, '..', 'Tiled')  # Adjust if necessary
+
         stage_file = f'Stage{self.stage}.json'
-        stage_file_path = os.path.join('Tiled', stage_file)
+        stage_file_path = os.path.join(tiled_dir, stage_file)
 
         if not os.path.exists(stage_file_path):
             print(f"Error: '{stage_file_path}' does not exist.")
@@ -91,6 +109,11 @@ class Game_Scene(Scene):
         with open(stage_file_path, 'r') as f:
             self.stages_data = json.load(f)
         print(f"Loaded stage data from '{stage_file_path}'")
+
+        # 맵 재로드
+        self.map = TiledMap(stage_file_path)
+        print(f"Map reloaded for Stage {self.stage}")
+
 
     def enter(self):
         print("[Game_Scene] Entered Game_Scene")
@@ -143,7 +166,7 @@ class Game_Scene(Scene):
 
         # 타일맵 스캔
         trap_gids = STAGE_TRAP_GIDS.get(self.stage, [])
-        for layer in self.map.data['layers']:
+        for layer in self.map.map_data['layers']:
             if layer['type'] == 'tilelayer':
                 for y in range(self.map.map_height):
                     for x in range(self.map.map_width):
@@ -178,8 +201,10 @@ class Game_Scene(Scene):
         # 맵, 적, 함정 등을 세팅
         self.setup()
 
-
-
+    def save_game_state(self):
+        # Save 클래스의 save_state 메서드 호출
+        self.save_instance.save_state()
+        print("Game state saved via Save instance.")
 
 
 
@@ -190,6 +215,14 @@ class Game_Scene(Scene):
         return not (right1 < left2 or left1 > right2 or top1 < bottom2 or bottom1 > top2)
 
     def update(self):
+        for bullet in self.bullets:
+            bullet.update()
+        self.bullets = [bullet for bullet in self.bullets if bullet.active]
+
+        for bullet in self.bullets:
+            if self.check_bullet_collision_with_save_boxes(bullet):
+                bullet.active = False
+
         if self.skip_collision_check:
             self.skip_collision_check = False  # 첫 프레임만 스킵
             return
@@ -198,7 +231,7 @@ class Game_Scene(Scene):
                                   save_instance=self.save_instance,
                                   load_instance=self.load_instance)
 
-        print(f"[Game_Scene] Player Position: ({self.player.x}, {self.player.y})")
+
 
         self.map.check_vertical_collision(self.player)
         self.map.check_horizontal_collision(self.player)
@@ -234,13 +267,6 @@ class Game_Scene(Scene):
         # 비활성화된 트랩 제거
         self.traps = [trap for trap in self.traps if trap.active]
 
-        # 플레이어의 총알과 Save 타일 충돌 체크
-        for bullet in self.player.bullets:
-            if self.map.check_bullet_collision_with_save_tile(bullet):
-                print("[Game_Scene] Bullet hit Save tile. Saving game state.")
-                self.save_instance.save_state()
-                bullet.active = False  # 충돌한 총알 비활성화
-
         # 플레이어와 적 충돌 체크
         for enemy in self.enemies:
             if self.check_collision(self.player, enemy):
@@ -253,7 +279,7 @@ class Game_Scene(Scene):
             enemy.update(self.map.platforms)
 
         # 플레이어 총알과 적 충돌 체크
-        for bullet in self.player.bullets:
+        for bullet in self.bullets:
             for enemy in self.enemies:
                 if self.check_collision(bullet, enemy):
                     print("[Game_Scene] Bullet hit Enemy!")
@@ -263,6 +289,28 @@ class Game_Scene(Scene):
 
         # 비활성화된 적 제거
         self.enemies = [enemy for enemy in self.enemies if enemy]
+
+    def check_bullet_collision_with_save_boxes(self, bullet):
+        for save_box in self.save_boxes:
+            tile_left, tile_bottom, tile_right, tile_top = save_box.get_collision_box()
+            bullet_left, bullet_bottom, bullet_right, bullet_top = bullet.get_collision_box()
+
+            print(f"Checking collision with SaveBox at ({save_box.x}, {save_box.y})")
+            print(f"Tile boundaries: left={tile_left}, right={tile_right}, bottom={tile_bottom}, top={tile_top}")
+            print(
+                f"Bullet boundaries: left={bullet_left}, right={bullet_right}, bottom={bullet_bottom}, top={bullet_top}")
+
+            # 충돌 처리
+            if (
+                    bullet_right > tile_left and
+                    bullet_left < tile_right and
+                    bullet_top > tile_bottom and
+                    bullet_bottom < tile_top
+            ):
+                print("Collision detected with SaveBox.")
+                self.save_game_state()
+                return True  # 충돌 발생
+        return False
 
     def draw_transition_zone(self):
         transition_zone_width = 50
@@ -292,7 +340,6 @@ class Game_Scene(Scene):
         # 플레이어가 범위내에있는지 체크
         if (map_right - transition_zone_width <= player_x <= map_right) and (
                 map_bottom <= player_y <= transition_zone_height):
-            print(f"[Game_Scene] Player at ({player_x}, {player_y}) reached the transition zone.")
             return True
         return False
 
@@ -312,11 +359,11 @@ class Game_Scene(Scene):
         self.exit()
 
         # 새로운 스테이지 로드
-        self.map = TiledMap(f'Tiled/Stage{self.stage}.json')
+        self.map = TiledMap(f'Stage{self.stage}.json')
         self.enemies = []
         self.traps = []
-        self.save_instance = Save(self.player, self.enemies, self.traps)
-        self.load_instance = Load(self.player, self.enemies, self)
+        self.save_instance = Save(self.player, self.enemies, self.traps, self)
+        self.load_instance = Load(self.player, self.enemies, self.traps, self)
 
         # 새로운 스테이지 초기화
         self.init_new_game()
@@ -329,6 +376,10 @@ class Game_Scene(Scene):
         self.map.draw()
         self.player.draw()
 
+        for save_box in self.save_boxes:
+            save_box.draw()
+        for bullet in self.bullets:
+            bullet.draw()
         for enemy in self.enemies:
             enemy.draw()
         for trap in self.traps:

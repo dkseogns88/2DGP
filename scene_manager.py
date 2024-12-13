@@ -32,21 +32,8 @@ class SceneManager:
         elif scene_name == 'GameClear_Scene':
             self.current_scene = GameClearScene()
         elif scene_name == 'Load_Saved_Game':
-            from save import Save
-            from load import Load
-            save = Save(None, None, [])
-            saved_data = save.get_saved_data("save_state.json")
             self.current_scene = Game_Scene()
-            if saved_data is not None:
-                # Load 인스턴스에 Game_Scene을 전달
-                self.current_scene.load_instance = Load(
-                    self.current_scene.player,
-                    self.current_scene.enemies,
-                    self.current_scene
-                )
-                self.current_scene.load_instance.load_state("save_state.json")
-            else:
-                print("[SceneManager] No save file found. Starting a new game.")
+            self.current_scene.load_instance.load_state("save_state.json")
         elif scene_name == 'exit':
             pico2d.close_canvas()
             exit()

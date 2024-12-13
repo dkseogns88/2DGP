@@ -2,30 +2,39 @@ import pico2d
 from utils import resource_path
 import os
 import json
+from save_box import SaveBox
 import xml.etree.ElementTree as ET
 
 
-class TiledMap:
-    def __init__(self, file_path):
-        with open(file_path, 'r') as f:
-            self.data = json.load(f)
 
-        self.tile_width = self.data['tilewidth']
-        self.tile_height = self.data['tileheight']
-        self.map_width = self.data['width']
-        self.map_height = self.data['height']
+class TiledMap:
+
+    def __init__(self, filename):
+        file_path = resource_path(os.path.join('Tiled', filename))
+        try:
+            with open(file_path, 'r') as f:
+                self.map_data = json.load(f)
+        except FileNotFoundError:
+            print(f"Cannot find the map file: {file_path}")
+            raise
+
+        self.tile_width = self.map_data['tilewidth']
+        self.tile_height = self.map_data['tileheight']
+        self.map_width = self.map_data['width']
+        self.map_height = self.map_data['height']
 
         self.tilesets = self._load_tilesets()
         self.platforms = self._get_platform_tiles()
 
+
     def _load_tilesets(self):
         tilesets = []
-        for tileset in self.data['tilesets']:
+        for tileset in self.map_data['tilesets']:
             first_gid = tileset['firstgid']
-            tileset_source = os.path.join('Tiled', tileset['source'])
-            tileset_info = self._parse_tileset(tileset_source)
+            tileset_source = tileset['source']
+            tileset_info = self._parse_tileset(os.path.join('Tiled', tileset_source))
 
-            tileset_image = pico2d.load_image(tileset_info['image'])
+            tileset_image = pico2d.load_image(resource_path(os.path.join('Tiled', tileset_info['image'])))
             columns = (tileset_image.w - tileset_info['margin'] * 2) // (self.tile_width + tileset_info['spacing'])
 
             tilesets.append({
@@ -37,57 +46,55 @@ class TiledMap:
             })
         return tilesets
 
+    def _create_save_boxes(self):
+        # 맵에 직접 SaveBox를 배치합니다.
+        # 예시: Stage1과 Stage2에 각각 SaveBox를 생성
+        save_boxes = []
+        if "Stage1.json" in self.map_data['filename']:
+            save_boxes.append(SaveBox(100, 200, 50, 50))
+        if "Stage2.json" in self.map_data['filename']:
+            save_boxes.append(SaveBox(300, 400, 50, 50))
+
+        return save_boxes
+
     def check_bullet_collision_with_save_tile(self, bullet):
-        for layer in self.data['layers']:
-            if layer['type'] == 'tilelayer':
-                for y in range(self.map_height):
-                    for x in range(self.map_width):
-                        gid = layer['data'][y * self.map_width + x]
+        for save_box in self.save_boxes:
+            tile_left, tile_bottom, tile_right, tile_top = save_box.get_collision_box()
+            bullet_left, bullet_bottom, bullet_right, bullet_top = bullet.get_collision_box()
 
-                        if gid == 0:
-                            continue
-
-                        tileset = self._get_tileset_for_gid(gid)
-                        if not tileset:
-                            continue
-
-                        tile_id = gid - tileset['first_gid']
-
-                        #세이브 타일구분
-                        if tileset['first_gid'] == 49:
-                            tile_left = x * self.tile_width
-                            tile_bottom = (self.map_height - y - 1) * self.tile_height
-                            tile_right = tile_left + self.tile_width
-                            tile_top = tile_bottom + self.tile_height
-                            bullet_left, bullet_bottom, bullet_right, bullet_top = bullet.get_collision_box()
-
-                            # 충돌처리
-                            if (
-                                    bullet_right > tile_left and
-                                    bullet_left < tile_right and
-                                    bullet_top > tile_bottom and
-                                    bullet_bottom < tile_top
-                            ):
-                                print("Collision detected with Save tile.")
-                                return True  # 충돌 발생
+            # 충돌 처리
+            if (
+                    bullet_right > tile_left and
+                    bullet_left < tile_right and
+                    bullet_top > tile_bottom and
+                    bullet_bottom < tile_top
+            ):
+                print("Collision detected with SaveBox.")
+                self.save_game_state()  # 저장 기능 호출
+                return True  # 충돌 발생
         return False
 
     def _parse_tileset(self, tileset_source):
-        tree = ET.parse(tileset_source)
-        root = tree.getroot()
-        image_element = root.find('image')
-        margin = int(root.get('margin', 0))
-        spacing = int(root.get('spacing', 0))
+        tileset_path = resource_path(tileset_source)
+        try:
+            tree = ET.parse(tileset_path)
+            root = tree.getroot()
+            image_element = root.find('image')
+            margin = int(root.get('margin', 0))
+            spacing = int(root.get('spacing', 0))
 
-        return {
-            "image": os.path.join('Tiled', image_element.get('source')),
-            "margin": margin,
-            "spacing": spacing
-        }
+            return {
+                "image": image_element.get('source'),
+                "margin": margin,
+                "spacing": spacing
+            }
+        except FileNotFoundError:
+            print(f"Cannot find the tileset file: {tileset_path}")
+            raise
 
     def _get_platform_tiles(self):
         platforms = []
-        for layer in self.data['layers']:
+        for layer in self.map_data['layers']:
             if layer['type'] == 'tilelayer':
                 for y in range(self.map_height):
                     for x in range(self.map_width):
@@ -142,7 +149,7 @@ class TiledMap:
                 player.vertical_velocity = 0
 
     def draw(self):
-        for layer in self.data['layers']:
+        for layer in self.map_data['layers']:
             if layer['type'] == 'tilelayer':
                 for y in range(self.map_height):
                     for x in range(self.map_width):
@@ -168,4 +175,5 @@ class TiledMap:
                             x * self.tile_width + self.tile_width // 2,
                             (self.map_height - y - 1) * self.tile_height + self.tile_height // 2
                         )
+
 

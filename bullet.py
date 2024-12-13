@@ -1,4 +1,5 @@
 import pico2d
+from utils import resource_path
 
 class Bullet:
     def __init__(self, x, y, direction, speed=10):
@@ -6,7 +7,7 @@ class Bullet:
         self.y = y
         self.direction = direction
         self.speed = speed
-        self.image = pico2d.load_image('resource/player_bullet.png')
+        self.image = pico2d.load_image(resource_path('resource/player_bullet.png'))
         self.width = 20
         self.height = 20
         self.active = True

@@ -28,16 +28,16 @@
             "scale": 1.1689453125,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 712.6081871345029,
-                "y": 614.2289055973266
+                "x": 526.9707602339181,
+                "y": 603.5355054302422
             }
         },
         "Stage1.tmx": {
-            "scale": 1.1689453125,
+            "scale": 0.75,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 526.9707602339181,
-                "y": 603.5355054302422
+                "x": 472,
+                "y": 487.99999999999994
             }
         },
         "Stage2.json": {
@@ -49,11 +49,11 @@
             }
         },
         "Stage2.tmx": {
-            "scale": 0.5,
+            "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 556,
-                "y": 270
+                "x": 832,
+                "y": 693
             }
         },
         "Stage3.json": {
@@ -98,18 +98,18 @@
         "Stage1.json",
         "PC Computer - I Wanna Be the Boshy - Saves2.tsx",
         "Stage2.tmx",
-        "Stage2.json",
-        "Stage3.json"
+        "Stage3.json",
+        "Stage1.tmx"
     ],
     "project": "FirstProject.tiled-project",
     "recentFiles": [
         "CastleTile.tsx",
         "Stage1.json",
         "PC Computer - I Wanna Be the Boshy - Saves2.tsx",
-        "Stage3.json",
-        "Stage2.json",
-        "Stage2.tmx",
         "Stage1.tmx",
+        "Stage3.json",
+        "Stage2.tmx",
+        "Stage2.json",
         "save.tsx",
         "save2a.tsx",
         "save1a.tsx",
